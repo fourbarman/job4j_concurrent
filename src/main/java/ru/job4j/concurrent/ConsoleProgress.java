@@ -3,7 +3,7 @@ package ru.job4j.concurrent;
 /**
  * ConsoleProgress.
  * <p>
- * Run two new threads. Print thread's name.
+ * Emulates console progress.
  *
  * @author fourbarman (maks.java@yandex.ru).
  * @version %I%, %G%.
@@ -12,7 +12,7 @@ package ru.job4j.concurrent;
 public class ConsoleProgress implements Runnable {
 
     /**
-     * While thread !terminated than print progress.
+     * While !terminated emulates console progress.
      */
     @Override
     public void run() {
