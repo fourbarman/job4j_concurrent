@@ -19,9 +19,9 @@ public class ConsoleProgress implements Runnable {
         try {
             char[] process = new char[]{'\\', '|', '/'};
             while (!Thread.currentThread().isInterrupted()) {
-                for (int i = 0; i < process.length; i++) {
+                for (char c : process) {
                     Thread.sleep(500);
-                    System.out.print("\r load: " + process[i]);
+                    System.out.print("\r load: " + c);
                 }
             }
         } catch (InterruptedException ie) {
