@@ -7,7 +7,7 @@ package ru.job4j.concurrent;
  *
  * @author fourbarman (maks.java@yandex.ru).
  * @version %I%, %G%.
- * @since 08.12.2021.
+ * @since 12.12.2021.
  */
 public class ConsoleProgress implements Runnable {
 
@@ -16,11 +16,17 @@ public class ConsoleProgress implements Runnable {
      */
     @Override
     public void run() {
-        char[] process = new char[]{'\\', '|', '/'};
-        while (!Thread.currentThread().isInterrupted()) {
-            for (int i = 0; i < process.length; i++) {
-                System.out.print("\r load: " + process[i]);
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                Thread.sleep(500);
+                System.out.print("\r load: " + "\\");
+                Thread.sleep(500);
+                System.out.print("\r load: " + "|");
+                Thread.sleep(500);
+                System.out.print("\r load: " + "/");
             }
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -28,9 +34,9 @@ public class ConsoleProgress implements Runnable {
         Thread progress = new Thread(new ConsoleProgress());
         progress.start();
         try {
-            Thread.sleep(10000); /* симулируем выполнение параллельной задачи в течение 1 секунды. */
+            Thread.sleep(10000);
         } catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
+            Thread.currentThread().interrupt();
         }
         progress.interrupt();
     }
