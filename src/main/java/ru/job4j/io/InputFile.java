@@ -26,17 +26,17 @@ public class InputFile implements Input {
      */
     @Override
     public String getContent(Predicate<Character> predicate) {
-        String output = "";
+        StringBuilder sb = new StringBuilder();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             int data;
             while ((data = bufferedReader.read()) > 0) {
                 if (predicate.test((char) data)) {
-                    output += (char) data;
+                    sb.append((char) data);
                 }
             }
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
-        return output;
+        return sb.toString();
     }
 }
