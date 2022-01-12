@@ -3,7 +3,8 @@ package ru.job4j.userstorage;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
-import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * UserStore.
@@ -15,11 +16,7 @@ import java.util.HashSet;
 @ThreadSafe
 public class UserStore {
     @GuardedBy("this")
-    private final HashSet<User> storage;
-
-    public UserStore() {
-        this.storage = new HashSet<>();
-    }
+    private final Map<Integer, User> storage = new ConcurrentHashMap<>();
 
     /**
      * Adds User to storage.
@@ -28,7 +25,7 @@ public class UserStore {
      * @return Result.
      */
     public synchronized boolean add(User user) {
-        return this.storage.add(user);
+        return this.storage.putIfAbsent(user.getId(), user) != null;
     }
 
     /**
@@ -39,12 +36,7 @@ public class UserStore {
      * @return Result.
      */
     public synchronized boolean update(User user) {
-        return this.storage.stream()
-                .filter(u -> u.getId() == user.getId())
-                .findFirst()
-                .map(this::delete)
-                .map(usr -> this.storage.add(user))
-                .orElse(false);
+        return this.storage.replace(user.getId(), user) != null;
     }
 
     /**
@@ -54,7 +46,7 @@ public class UserStore {
      * @return Result.
      */
     public synchronized boolean delete(User user) {
-        return this.storage.remove(user);
+        return this.storage.remove(user.getId(), user);
     }
 
     /**
@@ -67,8 +59,8 @@ public class UserStore {
      */
     public synchronized boolean transfer(int fromId, int toId, int amount) {
         boolean success = false;
-        User fromUser = this.storage.parallelStream().filter(u -> u.getId() == fromId).findFirst().orElse(null);
-        User toUser = this.storage.parallelStream().filter(u -> u.getId() == toId).findFirst().orElse(null);
+        User fromUser = this.getUser(fromId);
+        User toUser = this.getUser(toId);
         if (fromUser != null && toUser != null) {
             if (fromUser.getAmount() >= amount) {
                 fromUser.setAmount(fromUser.getAmount() - amount);
@@ -86,6 +78,6 @@ public class UserStore {
      * @return Found User or Null.
      */
     public synchronized User getUser(int id) {
-        return this.storage.parallelStream().filter(u -> u.getId() == id).findFirst().orElse(null);
+        return this.storage.get(id);
     }
 }
