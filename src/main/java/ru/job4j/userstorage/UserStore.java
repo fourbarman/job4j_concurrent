@@ -25,7 +25,7 @@ public class UserStore {
      * @return Result.
      */
     public synchronized boolean add(User user) {
-        return this.storage.putIfAbsent(user.getId(), user) != null;
+        return this.storage.putIfAbsent(user.getId(), user) == null;
     }
 
     /**
