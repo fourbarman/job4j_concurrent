@@ -3,9 +3,9 @@ package ru.job4j.synch;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * SingleLockList.
@@ -59,7 +59,7 @@ public class SingleLockList<T> implements Iterable<T> {
      * @return Cloned List.
      */
     private synchronized List<T> clone(List<T> list) {
-        return list.parallelStream().collect(Collectors.toList());
+        return new ArrayList<>(list);
     }
 
 }
