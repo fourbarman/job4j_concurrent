@@ -8,56 +8,45 @@ import java.util.Queue;
 
 @ThreadSafe
 public class SimpleBlockingQueue<T> {
-    private final int size;
-
-    public synchronized int getSize() {
-        return this.size;
-    }
+    private final int limit;
 
     public SimpleBlockingQueue(int size) {
-        this.size = size;
+        this.limit = size;
     }
 
     @GuardedBy("this")
     private Queue<T> queue = new LinkedList<>();
 
-    /**
-     * Если размер коллекции <= границе,
-     * то добаляем элемент.
-     * @param value Element.
-     */
     public synchronized void offer(T value) {
-        int curSize = this.queue.size();
-        System.out.println("Current size: " + curSize);
-        if (curSize == this.size) {
-            System.out.println("Queue overload ");
-            this.notifyAll();
-        }
-        else {
-            this.queue.offer(value);
-            System.out.println("Added ");
-        }
-    }
-
-    /**
-     * Если очередь пустая - усыпить нить.
-     * Иначе вернуть head и удалить из очереди.
-     *
-     * @return Head element.
-     */
-    public synchronized T poll() {
-        System.out.println("Polling ");
-        return this.queue.poll();
-    }
-
-    public synchronized void await() {
-        while (this.queue.peek() == null) {
+        System.out.println("offer q size: " + this.queue.size());
+        while (this.queue.size() == this.limit) {
             try {
-                System.out.println("Waiting ");
+                System.out.println("Producer Waiting");
+                notifyAll();
                 this.wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
+        this.queue.offer(value);
+        if (this.queue.size() > 1) {
+            notifyAll();
+        }
+    }
+
+    public synchronized T poll() {
+        System.out.println("poll q size: " + this.queue.size());
+        while (this.queue.isEmpty()) {
+            try {
+                System.out.println("Consumer Waiting");
+                this.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        if (this.queue.size() == this.limit) {
+            notifyAll();
+        }
+        return this.queue.poll();
     }
 }
