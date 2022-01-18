@@ -5,7 +5,18 @@ import net.jcip.annotations.ThreadSafe;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
+import java.util.function.Predicate;
+/**
+ * SimpleBlockingQueue.
+ * <p>
+ * Represents simple blocking queue with limit.
+ * Need 2 threads to work.
+ * Producer offers elements to queue. If queue has met limit, than wait until Consumer tales all elements.
+ *
+ * @author fourbarman (maks.java@yandex.ru).
+ * @version %I%, %G%.
+ * @since 18.01.2022.
+ */
 @ThreadSafe
 public class SimpleBlockingQueue<T> {
     private final int limit;
@@ -17,36 +28,46 @@ public class SimpleBlockingQueue<T> {
     @GuardedBy("this")
     private Queue<T> queue = new LinkedList<>();
 
+    /**
+     * Offer element to queue if it's possible.
+     * If queue is full than wait.
+     *
+     * @param value Element.
+     */
     public synchronized void offer(T value) {
-        System.out.println("offer q size: " + this.queue.size());
-        while (this.queue.size() == this.limit) {
-            try {
-                System.out.println("Producer Waiting");
-                notifyAll();
-                this.wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        this.queue.offer(value);
-        if (this.queue.size() > 1) {
+        check(x -> (x == this.limit));
+        queue.offer(value);
+        if (this.queue.size() == 1) {
             notifyAll();
         }
     }
 
+    /**
+     * Return queue head.
+     * If queue is empty than wait.
+     *
+     * @return Queue head.
+     */
     public synchronized T poll() {
-        System.out.println("poll q size: " + this.queue.size());
-        while (this.queue.isEmpty()) {
+        check(x -> (x == 0));
+        if (queue.size() == this.limit) {
+            notifyAll();
+        }
+        return queue.poll();
+    }
+
+    /**
+     * Wait thread if condition has been met.
+     *
+     * @param predicate Condition.
+     */
+    private synchronized void check(Predicate<Integer> predicate) {
+        while (predicate.test(queue.size())) {
             try {
-                System.out.println("Consumer Waiting");
-                this.wait();
+                wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-        if (this.queue.size() == this.limit) {
-            notifyAll();
-        }
-        return this.queue.poll();
     }
 }
