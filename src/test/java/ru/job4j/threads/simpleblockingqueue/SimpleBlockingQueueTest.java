@@ -32,7 +32,11 @@ public class SimpleBlockingQueueTest {
         }
         Thread producer = new Thread(() -> {
             for (int i : offerList) {
-                simpleBlockingQueue.offer(i);
+                try {
+                    simpleBlockingQueue.offer(i);
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
             }
         },
                 "producer");
@@ -40,7 +44,11 @@ public class SimpleBlockingQueueTest {
         Thread consumer = new Thread(() -> {
             List<Integer> list = new ArrayList<>();
             for (int i = 0; i <= 200; i++) {
-                list.add(simpleBlockingQueue.poll());
+                try {
+                    list.add(simpleBlockingQueue.poll());
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
             }
             pollList.addAll(list);
         },

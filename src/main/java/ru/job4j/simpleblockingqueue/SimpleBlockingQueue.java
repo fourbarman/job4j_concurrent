@@ -6,6 +6,7 @@ import net.jcip.annotations.ThreadSafe;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.function.Predicate;
+
 /**
  * SimpleBlockingQueue.
  * <p>
@@ -34,12 +35,12 @@ public class SimpleBlockingQueue<T> {
      *
      * @param value Element.
      */
-    public synchronized void offer(T value) {
-        check(x -> (x == this.limit));
-        queue.offer(value);
-        if (this.queue.size() == 1) {
-            notifyAll();
+    public synchronized void offer(T value) throws InterruptedException {
+        while (queue.size() == this.limit) {
+            wait();
         }
+        queue.offer(value);
+        notifyAll();
     }
 
     /**
@@ -48,26 +49,11 @@ public class SimpleBlockingQueue<T> {
      *
      * @return Queue head.
      */
-    public synchronized T poll() {
-        check(x -> (x == 0));
-        if (queue.size() == this.limit) {
-            notifyAll();
+    public synchronized T poll() throws InterruptedException {
+        while (queue.size() == 0) {
+            wait();
         }
+        notifyAll();
         return queue.poll();
-    }
-
-    /**
-     * Wait thread if condition has been met.
-     *
-     * @param predicate Condition.
-     */
-    private synchronized void check(Predicate<Integer> predicate) {
-        while (predicate.test(queue.size())) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
     }
 }
