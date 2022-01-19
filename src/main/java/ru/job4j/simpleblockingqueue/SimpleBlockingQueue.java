@@ -53,7 +53,8 @@ public class SimpleBlockingQueue<T> {
         while (queue.size() == 0) {
             wait();
         }
+        T element = queue.poll();
         notifyAll();
-        return queue.poll();
+        return element;
     }
 }
