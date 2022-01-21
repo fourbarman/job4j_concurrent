@@ -57,4 +57,11 @@ public class SimpleBlockingQueue<T> {
         notifyAll();
         return element;
     }
+
+    /**
+     * Return true if queue is empty.
+     */
+    public synchronized boolean isEmpty() {
+        return queue.isEmpty();
+    }
 }
