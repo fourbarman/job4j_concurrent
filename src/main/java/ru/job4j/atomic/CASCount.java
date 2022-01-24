@@ -27,11 +27,12 @@ public class CASCount {
     }
 
     public void increment() {
-        AtomicReference<Integer> curValue, newValue;
+        Integer curValue;
+        Integer newValue;
         do {
-            curValue = new AtomicReference<>(count.get());
-            newValue = new AtomicReference<>(count.get() + 1);
-        } while (!(count.compareAndSet(curValue.get(), newValue.get())));
+            curValue = count.get();
+            newValue = count.get() + 1;
+        } while (!(count.compareAndSet(curValue, newValue)));
     }
 
     public int get() {
