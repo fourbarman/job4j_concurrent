@@ -2,8 +2,6 @@ package ru.job4j.cache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
 
 /**
  * Cache.
@@ -38,20 +36,15 @@ public class Cache {
      * @return Base if success.
      */
     public Base update(Base model) {
-        BiFunction<Integer, Base, Base> equalVer = new BiFunction<Integer, Base, Base>() {
-            @Override
-            public Base apply(Integer integer, Base base) {
-                Base stored = memory.get(model.getId());
-                if (stored.getVersion() != model.getVersion()) {
-                    throw new OptimisticException("Versions are NOT equal!");
-                }
-                AtomicInteger newVersion = new AtomicInteger(model.getVersion());
-                stored = new Base(model.getId(), newVersion.incrementAndGet());
-                stored.setName(model.getName());
-                return stored;
+        return memory.computeIfPresent(model.getId(), (k, v) -> {
+            Base stored = memory.get(model.getId());
+            if (stored.getVersion() != model.getVersion()) {
+                throw new OptimisticException("Versions are NOT equal!");
             }
-        };
-        return memory.computeIfPresent(model.getId(), equalVer);
+            stored = new Base(model.getId(), model.getVersion() + 1);
+            stored.setName(model.getName());
+            return stored;
+        });
     }
 
     /**
