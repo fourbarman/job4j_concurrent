@@ -89,7 +89,7 @@ public class ThreadPool {
                     Runnable r = this.taskQueue.poll();
                     r.run();
                 } catch (InterruptedException e) {
-                    //write to log
+
                 }
             }
         }
