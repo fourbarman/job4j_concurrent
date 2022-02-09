@@ -28,24 +28,7 @@ public class ThreadPoolTest {
         for (int i = 0; i < 10; i++) {
             threadPool.work(result::incrementAndGet);
         }
-        threadPool.waitUntilAllTasksFinished();
         threadPool.shutdown();
         assertThat(result.get(), is(10));
-    }
-
-    /**
-     * Test when thread pool is stopped than throw IllegalStateException.
-     *
-     * @throws InterruptedException Exception.
-     */
-    @Test(expected = IllegalStateException.class)
-    public void test2() throws InterruptedException {
-        ThreadPool threadPool = new ThreadPool(10);
-        AtomicInteger result = new AtomicInteger(0);
-        for (int i = 0; i < 10; i++) {
-            threadPool.work(result::incrementAndGet);
-        }
-        threadPool.shutdown();
-        threadPool.work(System.out::println);
     }
 }
