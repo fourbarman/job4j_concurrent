@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
  * @since 10.02.2022.
  */
 public class EmailNotification {
-    ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private final ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     /**
      * Create fields for email notification.
@@ -37,6 +37,13 @@ public class EmailNotification {
      */
     public void close() {
         this.pool.shutdown();
+        while (!pool.isTerminated()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
