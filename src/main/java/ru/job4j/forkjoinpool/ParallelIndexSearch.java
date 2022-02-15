@@ -14,7 +14,7 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
     private T[] arr;
     private int start;
     private int last;
-    private int arr_length;
+    private int arrLength;
     private T target;
 
     /**
@@ -29,7 +29,7 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
         this.arr = array;
         this.start = start;
         this.last = last;
-        this.arr_length = array.length;
+        this.arrLength = array.length;
         this.target = obj;
     }
 
@@ -43,7 +43,7 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
     @Override
     protected Integer compute() {
         if ((last - start) < 10) {
-            return this.linear_search(arr, target);
+            return this.linearSearch(arr, target);
         }
         int middle = (start + last) / 2;
         if (target.equals(arr[middle])) {
@@ -65,7 +65,7 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
      * @param obj   Object.
      * @return Index or -1 if not found.
      */
-    private int linear_search(T[] array, T obj) {
+    private int linearSearch(T[] array, T obj) {
         for (int i = 0; i < array.length; i++) {
             if (obj.equals(array[i])) {
                 return i;
