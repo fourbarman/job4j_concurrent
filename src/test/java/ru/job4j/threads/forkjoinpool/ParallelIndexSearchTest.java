@@ -90,5 +90,4 @@ public class ParallelIndexSearchTest {
         int result = forkJoinPool.invoke(new ParallelIndexSearch<>(arrayMoreTen, 0, arrayMoreTen.length - 1, find));
         assertThat(result, is(-1));
     }
-
 }

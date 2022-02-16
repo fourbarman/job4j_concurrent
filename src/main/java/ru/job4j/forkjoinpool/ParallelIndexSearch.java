@@ -1,5 +1,6 @@
 package ru.job4j.forkjoinpool;
 
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
 /**
@@ -43,7 +44,7 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
     @Override
     protected Integer compute() {
         if ((last - start) < 10) {
-            return this.linearSearch(arr, target);
+            return this.linearSearch();
         }
         int middle = (start + last) / 2;
         if (target.equals(arr[middle])) {
@@ -55,22 +56,33 @@ public class ParallelIndexSearch<T> extends RecursiveTask<Integer> {
         parallelRight.fork();
         Integer resultLeft = parallelLeft.join();
         Integer resultRight = parallelRight.join();
-        return resultLeft == -1 ? resultLeft : resultRight;
+        return resultLeft == -1 ? resultRight : resultLeft;
     }
 
     /**
      * Linear search object in given array.
      *
-     * @param array Array.
-     * @param obj   Object.
      * @return Index or -1 if not found.
      */
-    private int linearSearch(T[] array, T obj) {
-        for (int i = 0; i < array.length; i++) {
-            if (obj.equals(array[i])) {
+    private int linearSearch() {
+        for (int i = start; i <= last; i++) {
+            if (target.equals(arr[i])) {
                 return i;
             }
         }
         return -1;
+    }
+
+    /**
+     * Execute Fork Join Pool and search element in array.
+     *
+     * @param array  Given array.
+     * @param object Object to search.
+     * @param <T>    Type.
+     * @return Index of searchable object.
+     */
+    public static <T> int find(T[] array, T object) {
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+        return forkJoinPool.invoke(new ParallelIndexSearch<T>(array, 0, array.length - 1, object));
     }
 }
